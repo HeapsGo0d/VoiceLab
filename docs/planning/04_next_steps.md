@@ -197,11 +197,13 @@ ssh root@<runpod-pod-id>.runpod.io -p <port>
 
 **Goal:** Establish repeatable workflows for voice conversion experiments.
 
-### 4.1 Create Workflow Scripts
+### 4.1 Create Workflow Scripts (PLANNED - Not Yet Implemented)
 
-**Scripts to add in `/scripts/`:**
+**Scripts to add in `/scripts/` directory:**
 
-**`isolate_vocals.sh`** - Wrapper for audio-separator
+**Note:** These scripts are planned for Phase 4 and do not exist yet in the repository.
+
+**`isolate_vocals.sh`** (planned) - Wrapper for audio-separator
 ```bash
 #!/bin/bash
 # Usage: ./scripts/isolate_vocals.sh input.wav output_dir/
@@ -210,7 +212,7 @@ audio-separator "$1" \
     --output_dir "$2"
 ```
 
-**`prepare_dataset.sh`** - Organize isolated vocals for Applio training
+**`prepare_dataset.sh`** (planned) - Organize isolated vocals for Applio training
 ```bash
 #!/bin/bash
 # Usage: ./scripts/prepare_dataset.sh voice_name isolated_vocals_dir/
@@ -218,7 +220,7 @@ mkdir -p /workspace/data/datasets/$1/0_gt_wavs/
 cp $2/*.wav /workspace/data/datasets/$1/0_gt_wavs/
 ```
 
-**`backup_model.sh`** - Export trained model from container
+**`backup_model.sh`** (planned) - Export trained model from container
 ```bash
 #!/bin/bash
 # Usage: ./scripts/backup_model.sh voice_name
@@ -229,11 +231,13 @@ tar -czf /workspace/outputs/backup_${1}_$(date +%Y%m%d).tar.gz \
 
 ---
 
-### 4.2 Document Common Workflows
+### 4.2 Document Common Workflows (PLANNED - Not Yet Implemented)
 
-**Create:** `/docs/workflows/`
+**Create:** `/docs/workflows/` directory
 
-**`01_voice_conversion_basic.md`** - End-to-end voice conversion
+**Note:** These workflow documents are planned for Phase 4 and do not exist yet in the repository.
+
+**`01_voice_conversion_basic.md`** (planned) - End-to-end voice conversion
 1. Upload raw audio with target voice
 2. Isolate vocals using audio-separator
 3. Prepare dataset for Applio
@@ -241,13 +245,13 @@ tar -czf /workspace/outputs/backup_${1}_$(date +%Y%m%d).tar.gz \
 5. Run inference on test audio
 6. Download converted results
 
-**`02_training_tips.md`** - Best practices
+**`02_training_tips.md`** (planned) - Best practices
 - Optimal audio quality (sample rate, format)
 - Dataset size recommendations (3-5 min for hobby, 10-30 min for better quality)
 - Training parameters (epochs, batch size)
 - Common errors and fixes
 
-**`03_troubleshooting.md`** - Debug guide
+**`03_troubleshooting.md`** (planned) - Debug guide
 - CUDA OOM errors (shouldn't happen with 4090)
 - Audio quality issues (pitch, artifacts)
 - Training instability

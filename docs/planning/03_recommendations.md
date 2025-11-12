@@ -24,28 +24,39 @@
 
 ---
 
-### ⚠️ UVR5 with CUDA 12.4 / PyTorch 2.5.1: **CAUTIOUS - Use audio-separator Instead**
+### ✅ audio-separator for Vocal Isolation: **GO**
 
-**Decision:** DO NOT use official UVR5 GUI. Use `audio-separator` package instead.
+**Decision:** Use `audio-separator` package as PRIMARY vocal isolation tool for v1.
+
+**Commit/Version:** Latest from PyPI (`pip install audio-separator`)
 
 **Justification:**
-- **Official UVR5 targets CUDA 11.7** - known crashes with CUDA 12.3/12.4
-- GUI-only design (Tkinter) - terrible for headless RunPod
-- ONNX Runtime requires CUDA 11 libraries (workarounds messy)
-- Minimal maintenance since Sep 2023
+- ✅ CLI-first design (perfect for headless RunPod automation)
+- ✅ Compatible with PyTorch 2.5.1 + CUDA 12.4 (shares env with Applio)
+- ✅ Uses same UVR models (MDX-Net, Demucs, VR Arch) as official UVR5
+- ✅ Active maintenance, modern PyTorch support
+- ✅ Lightweight, easier to integrate than GUI tools
 
-**Recommended alternative: audio-separator**
-- CLI-first design (perfect for automation)
-- Uses same UVR models (MDX-Net, Demucs, VR Arch)
-- Active maintenance, modern PyTorch support
-- Lightweight, easier to integrate
+**VRAM:** 6-8GB comfortable, can tune down to 4-6GB with `--segment_size` parameter.
 
-**If audio-separator fails in v1:**
-- **Fallback 1:** Separate venv for official UVR5 with CUDA 11.7 stack
-- **Fallback 2:** Manual vocal isolation with external tool (upload/download workflow)
-- **Fallback 3:** Skip vocal isolation in v1, add in v2 after testing
+---
 
-**Expected VRAM:** 6-8GB comfortable, can tune down to 4-6GB with reduced segment size.
+### ⚠️ UVR5 Official GUI: **FALLBACK ONLY** (v2 - If audio-separator fails)
+
+**Decision:** Keep UVR5 GUI documented as fallback, do NOT use in v1.
+
+**Why fallback only:**
+- ❌ **Officially targets CUDA 11.7** - known crashes with CUDA 12.3/12.4
+- ❌ GUI-only design (Tkinter) - requires X11 forwarding for headless use
+- ❌ ONNX Runtime CUDA 11 dependency - messy workarounds for CUDA 12
+- ❌ Minimal maintenance since Sep 2023
+
+**When to use:**
+- audio-separator has blocking CUDA/ONNX issues
+- You need specific UVR5 GUI-only features
+- Willing to set up separate venv with CUDA 11.7 stack
+
+**Fallback setup:** See [integration notes Option B](02_integration_notes.md) for split environment configuration.
 
 ---
 
@@ -72,6 +83,14 @@
 ---
 
 ## RunPod GPU Tier Recommendations
+
+> **🚀 High-End Users (RTX 4090/5090 - 24GB+):**
+> You can skip detailed VRAM analysis below. Use default settings everywhere. Jump to [Recommended Configuration](#recommended-configuration-for-your-setup).
+
+> **💰 Budget Users (8-12GB GPUs):**
+> Read the comparison table below for your GPU tier's capabilities and limitations.
+
+---
 
 ### Your Available Hardware: RTX 4090 (24GB) / RTX 5090 (32GB)
 

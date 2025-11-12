@@ -69,8 +69,14 @@
 
 3. **PyTorch 2.5.1 + CUDA 12.4 (FIRST):**
    ```bash
-   pip install torch==2.5.1 torchvision torchaudio \
+   pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
        --index-url https://download.pytorch.org/whl/cu124
+   ```
+
+   **Verify installation:**
+   ```bash
+   python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.version.cuda}')"
+   # Expected output: PyTorch: 2.5.1+cu124, CUDA: 12.4
    ```
 
 4. **audio-separator (lightweight, fewer conflicts):**
@@ -87,13 +93,20 @@
    cd applio
    git checkout b8791412993ebc934c148bd84798782af2f0439e
 
-   # CRITICAL: Edit requirements.txt
-   # Change: torch==2.7.1+cu128
-   # To:     torch==2.5.1+cu124
-   # (Also update torchvision/torchaudio to match)
+   # CRITICAL: Patch requirements.txt to use PyTorch 2.5.1 + cu124
+   sed -i 's/torch==2\.7\.1+cu128/torch==2.5.1+cu124/g' requirements.txt
+   sed -i 's/torchvision==.*+cu128/torchvision==0.20.1+cu124/g' requirements.txt
+   sed -i 's/torchaudio==.*+cu128/torchaudio==2.5.1+cu124/g' requirements.txt
+
+   # Verify patch applied correctly
+   grep -E "(torch|torchvision|torchaudio)==" requirements.txt
 
    pip install -r requirements.txt
    ```
+
+   **Fallback if v3.5.1 has issues:**
+   - Try commit `f17128bb3a6a` (includes "fix: Torch 2.5.0")
+   - Or downgrade to PyTorch 2.4.1+cu124 (officially supported)
 
 **Why this order:**
 - PyTorch first ensures correct CUDA variant
@@ -102,9 +115,11 @@
 
 ---
 
-## Environment Strategy Pros/Cons
+## Environment Strategy for v1
 
-### OPTION A: Single Environment (RECOMMENDED for v1)
+### ✅ Single Environment (v1 Default)
+
+**This is the recommended approach for v1. Options B/C below are fallbacks only if this fails.**
 
 **Setup:**
 - One Python venv: `/workspace/venv`
@@ -121,11 +136,13 @@
 - ⚠️ If audio-separator has PyTorch conflicts, affects Applio too
 - ⚠️ Dependency resolution must satisfy both tools
 
-**Verdict:** Start here. If problems arise, move to Option B in v2.
+**Decision:** Use this for v1. Only consider fallbacks below if you encounter blocking issues.
 
 ---
 
-### OPTION B: Split Environment (Fallback for v2)
+## Fallback Environment Strategies (v2 - Only If Needed)
+
+### ⚠️ Option B: Split Environment (If audio-separator conflicts with Applio)
 
 **Setup:**
 - Primary venv: `/workspace/venv` (Applio)
@@ -142,11 +159,11 @@
 - ❌ Need wrapper scripts to switch envs
 - ❌ Official UVR5 is GUI-only (poor for headless)
 
-**Verdict:** Only if audio-separator proves problematic.
+**When to use:** Only if audio-separator has CUDA/dependency conflicts in shared env.
 
 ---
 
-### OPTION C: Multi-Stage Docker (Production-Grade)
+### ⚠️ Option C: Multi-Stage Docker (Advanced users / Phase 3 GPT-SoVITS)
 
 **Setup:**
 - Stage 1: Base CUDA image + shared deps
@@ -231,9 +248,11 @@
 
 ---
 
-### Optional: UVR5 Official GUI Smoke Test (if using Option B)
+### ⚠️ UVR5 Official GUI Smoke Test (REFERENCE ONLY - Likely to Fail)
 
-**Goal:** Confirm GUI launches and processes audio.
+**Note:** This test is included only for reference if you're using Option B (split env with official UVR5). **Expect this to fail in headless Docker containers.** This is why audio-separator is the primary recommendation.
+
+**Goal:** Confirm GUI launches and processes audio (if using split env setup).
 
 **Steps:**
 1. Activate UVR5 venv: `source /workspace/venv-uvr5/bin/activate`
@@ -241,12 +260,17 @@
 3. Select model via GUI, load test audio, process
 4. Check output folder
 
-**Pass criteria:**
+**Pass criteria (unlikely in Docker):**
 - ✅ GUI launches without Tkinter errors
 - ✅ Processing completes
 - ✅ Outputs valid audio files
 
-**Reality check:** GUI may be flaky in Docker (X11 forwarding issues). This is why audio-separator is preferred.
+**Expected failures:**
+- ❌ X11 forwarding errors (no display available)
+- ❌ Tkinter initialization fails
+- ❌ GUI widgets don't render
+
+**Workaround:** Use CLI wrapper scripts or audio-separator instead of GUI.
 
 ---
 

@@ -17,9 +17,16 @@
 
 | Tool | Version/Commit | Date | Status | Port | VRAM (Typical) |
 |------|---------------|------|--------|------|----------------|
-| **Applio-RVC** | `b879141299` (v3.5.1) | Oct 26, 2024 | **PRIMARY** | 6969 | 6-8GB inference, 8-12GB training |
-| **UVR5** (alt) | Use `audio-separator` package | Active | **RECOMMENDED ALT** | N/A (CLI) | 6-8GB (adjustable) |
-| UVR5 (official) | `a897c05a82` (v5.6) | Sep 2023 | ⚠️ PROBLEMATIC | N/A (GUI only) | 6-8GB |
+| **Applio-RVC** | `b879141299` (v3.5.1) | Oct 26, 2024 | ✅ **PRIMARY** | 6969 | 6-8GB inference, 8-12GB training |
+| **audio-separator** | Latest (PyPI) | Active | ✅ **PRIMARY** | N/A (CLI) | 6-8GB (adjustable) |
+
+### Fallback Tools (v2 - If Needed)
+
+| Tool | Version/Commit | Date | Status | Port | VRAM (Typical) |
+|------|---------------|------|--------|------|----------------|
+| UVR5 (official GUI) | `a897c05a82` (v5.6) | Sep 2023 | ⚠️ **FALLBACK ONLY** | N/A (GUI only) | 6-8GB |
+
+**Note:** UVR5 official GUI targets CUDA 11.7 and requires separate environment. Only use if audio-separator fails. See [integration notes](02_integration_notes.md) for setup.
 
 ### Optional Tools (Phase 3 - Separate Container)
 
@@ -39,7 +46,14 @@
 - ⚠️ **Requires modification:** Current `requirements.txt` specifies PyTorch 2.7.1 + CUDA 12.8
 - ✅ **Target-compatible:** PyTorch 2.4+ officially supported (PR #947)
 - ✅ **Your target (2.5.1 + cu124):** Should work with modified requirements
-- 📝 **Action:** Downgrade requirements from `torch==2.7.1+cu128` to `torch==2.5.1+cu124`
+- 📝 **Action:** Patch requirements to use:
+  - `torch==2.5.1+cu124`
+  - `torchvision==0.20.1+cu124`
+  - `torchaudio==2.5.1+cu124`
+
+**Fallback if v3.5.1 has issues:**
+- **Commit:** `f17128bb3a6a` (Oct 27, 2024) - Includes explicit "fix: Torch 2.5.0" commit
+- **Or:** Downgrade to PyTorch 2.4.1+cu124 (officially supported via PR #947)
 
 **Known Issues:**
 - 🔴 **Multi-GPU training broken** (#1153) - Use single GPU only
@@ -61,27 +75,49 @@
 
 ---
 
-### UVR5 (Vocal Isolation)
+### Vocal Isolation Tools
 
-**Official GUI Commit:** `a897c05a82b1d6bd5979911535cebe248315f5ae` (v5.6, Sep 2023)
+#### ✅ PRIMARY: audio-separator (Recommended for v1)
 
-**PyTorch/CUDA:**
-- ❌ **Officially targets CUDA 11.7** - Not designed for CUDA 12.x
-- ❌ **ONNX Runtime CUDA 11 dependency** - Requires workarounds for CUDA 12
-- 🔴 **Known crashes with CUDA 12.3/12.4** (#1652, #1119)
-- 🟡 **GUI-only** - No official CLI support
+**Installation:** `pip install audio-separator` (PyPI)
 
-**RECOMMENDED ALTERNATIVE: audio-separator package**
-- CLI-first design (perfect for headless RunPod)
-- Uses same UVR models (MDX-Net, Demucs, VR Arch)
-- More flexible with PyTorch/CUDA versions
-- Active maintenance
-- Installation: `pip install audio-separator`
+**Why primary:**
+- ✅ CLI-first design (perfect for headless RunPod)
+- ✅ Compatible with PyTorch 2.5.1 + CUDA 12.4
+- ✅ Uses same UVR models (MDX-Net, Demucs, VR Arch)
+- ✅ Active maintenance
+- ✅ Lightweight, shares environment with Applio
 
 **VRAM:**
 - Minimum: 6GB (tight)
 - Comfortable: 8-12GB
-- Can reduce memory via "Segment Size" or "Chunk Size" settings
+- Can reduce memory via `--segment_size` parameter
+
+**Usage:**
+```bash
+audio-separator input.wav \
+  --model_filename model_bs_roformer_ep_317_sdr_12.9755.ckpt \
+  --output_dir /workspace/data/isolated/
+```
+
+---
+
+#### ⚠️ FALLBACK: UVR5 Official GUI (v2 - If audio-separator fails)
+
+**Commit:** `a897c05a82b1d6bd5979911535cebe248315f5ae` (v5.6, Sep 2023)
+
+**Why fallback only:**
+- ❌ **Officially targets CUDA 11.7** - Requires separate environment with cu117 stack
+- ❌ **ONNX Runtime CUDA 11 dependency** - Workarounds needed for CUDA 12
+- 🔴 **Known crashes with CUDA 12.3/12.4** (#1652, #1119)
+- 🟡 **GUI-only** - Requires X11 forwarding for headless use
+
+**When to use:**
+- audio-separator has CUDA/ONNX issues in your environment
+- You need specific UVR5 GUI-only features
+- Willing to set up separate venv with CUDA 11.7 stack
+
+**Setup:** See [integration notes Option B](02_integration_notes.md) for isolated environment configuration.
 
 ---
 
@@ -103,21 +139,26 @@
 
 ---
 
-## Environment Layout Recommendation
+## Environment Layout for v1
 
-### **OPTION B: Shared primary env + audio-separator CLI**
+### **Single Shared Environment (Recommended)**
 
 **Primary Environment (PyTorch 2.5.1 + CUDA 12.4):**
-- Applio-RVC (modified requirements)
-- audio-separator (lightweight CLI alternative to UVR5)
-- Shared audio processing libs (librosa, scipy, etc.)
+- Applio-RVC (with modified requirements.txt)
+- audio-separator (CLI tool, shares PyTorch)
+- Shared audio processing libs (librosa, scipy, soundfile, etc.)
 
-**Why this layout:**
-- ✅ Simplest for v1 hobby use
-- ✅ audio-separator more headless-friendly than UVR5 GUI
+**Why this approach:**
+- ✅ Simplest to build and maintain
+- ✅ audio-separator compatible with modern PyTorch/CUDA
 - ✅ Avoids CUDA 11.7 vs 12.4 conflicts
-- ✅ Single Python environment = easier maintenance
-- ⚠️ If audio-separator has issues, fallback to separate UVR5 venv in v2
+- ✅ Single Python environment = easier troubleshooting
+- ✅ Lower storage overhead (~5-7GB vs ~10-12GB for dual env)
+
+**Fallback (v2 only if needed):**
+- Split environment with UVR5 in separate venv (CUDA 11.7)
+- See [integration notes Option B](02_integration_notes.md) for details
+- Only pursue if audio-separator has blocking issues
 
 ---
 
@@ -135,20 +176,45 @@
 
 ## VRAM Recommendations
 
+> **🚀 High-End Users (RTX 4090/5090 - 24GB+):**
+> Skip VRAM tuning entirely. Use default settings, max batch sizes, and experiment freely. You have enough headroom for all tools simultaneously. **Jump to [Next Steps](04_next_steps.md).**
+
+> **💰 Budget Users (8-12GB GPUs):**
+> Read VRAM guidance below for tuning tips and memory management strategies.
+
+---
+
+### High-End GPUs (24GB+)
+
 **RTX 4090 (24GB)** or **RTX 5090 (32GB):**
-- ✅✅ Excellent for all v1 tools
-- ✅✅ Comfortable multi-tasking (multiple tools running)
-- ✅✅ Large dataset training with high batch sizes
-- ✅✅ Ready for GPT-SoVITS Phase 3 addition
-- ✅✅ Can experiment with simultaneous workflows
+- ✅✅ Excellent for all v1 tools with default settings
+- ✅✅ Comfortable multi-tasking (multiple tools running simultaneously)
+- ✅✅ Large dataset training with high batch sizes (16-32+)
+- ✅✅ Ready for GPT-SoVITS Phase 3 addition (12-16GB training fits easily)
+- ✅✅ Can experiment with simultaneous workflows without OOM concerns
+- ✅✅ Future-proof for v1, v2, v3 expansions
 
-**12GB GPU** (e.g., RTX 3060 12GB, RTX 4070):
+**Verdict:** Zero VRAM tuning needed. Focus on experimentation, not optimization.
+
+---
+
+### Budget GPUs (8-12GB)
+
+**12GB GPU** (e.g., RTX 3060 12GB, RTX 4070 12GB, RTX 4060 Ti 16GB):
 - ✅ Sweet spot for hobby use
-- ✅ Comfortable for all v1 tools
-- ✅ Room for experimentation
+- ✅ Comfortable for all v1 tools (Applio + audio-separator)
+- ✅ Room for experimentation with moderate batch sizes (8-12)
+- ⚠️ GPT-SoVITS Phase 3 will be tight (training requires 12-16GB)
+- 💡 **Tuning tips:** Use default batch sizes, reduce if OOM occurs
 
-**8GB GPU** (e.g., RTX 3060 Ti):
-- ⚠️ Viable but tight
-- ⚠️ Requires careful memory management
+**8GB GPU** (e.g., RTX 3060 Ti, RTX 2070 Super):
+- ⚠️ Viable but tight for training
+- ✅ Inference works comfortably
+- ⚠️ Requires careful memory management for training
+- 💡 **Tuning tips:** Reduce batch size to 4-6, use smaller pretrained models, lower audio-separator segment size
+- ❌ GPT-SoVITS Phase 3 not recommended
 
-**Verdict:** With 4090/5090 available, you have zero VRAM concerns for v1-v3. Future-proof for any voice AI experimentation.
+**< 8GB GPU:**
+- ❌ Not recommended for v1
+- Training will frequently OOM
+- Consider upgrading GPU or using cloud (RunPod/Vast.ai)
