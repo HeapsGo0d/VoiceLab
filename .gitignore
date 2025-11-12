@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PYTHONPATH
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Docker
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+workspace/data/raw/*
+workspace/data/isolated/*
+workspace/data/datasets/*
+workspace/models/*
+workspace/outputs/*
+workspace/tools/applio/
+workspace/tools/audio-separator/
+
+# Keep directory structure
+!workspace/data/raw/.gitkeep
+!workspace/data/isolated/.gitkeep
+!workspace/data/datasets/.gitkeep
+!workspace/models/.gitkeep
+!workspace/outputs/.gitkeep
+
+# Secrets
+.env
+*.pem
+*.key
+credentials.json
+
+# Large model files
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.onnx
+*.index
+
+# Audio files (optional - uncomment if you want to exclude)
+# *.wav
+# *.mp3
+# *.flac
+# *.ogg
