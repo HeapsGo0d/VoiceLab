@@ -219,6 +219,7 @@ Expected startup time: 30-60 seconds for Web UI to be ready.
 - ✅ Helper scripts (build, run, smoke-test)
 - ✅ Docker Compose support
 - ✅ Health checks
+- ✅ GitHub Actions CI/CD (automated Docker builds)
 
 ### 🔄 v2 Planned (Phase 3-4)
 - 📋 RunPod deployment guide
