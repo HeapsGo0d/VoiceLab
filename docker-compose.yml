@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  voicelab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: voicelab:v1
+    container_name: voicelab-v1
+
+    # GPU access (requires NVIDIA Container Toolkit)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    # Port mappings
+    ports:
+      - "6969:6969"  # Applio Web UI
+
+    # Volume mounts (persistent storage)
+    volumes:
+      # Persistent workspace (models, datasets, outputs)
+      - ./workspace:/workspace
+
+      # Optional: Mount local audio files for quick testing
+      # - ./local_audio:/workspace/data/raw:ro
+
+      # Optional: Share audio-separator cache (avoids re-downloading models)
+      - audio-separator-cache:/root/.cache/audio-separator
+
+    # Environment variables
+    environment:
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=6969
+      # Uncomment to enable Gradio share link (public URL)
+      # - GRADIO_SHARE=true
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Use host network for easier access (optional, comment out if using port mapping)
+    # network_mode: host
+
+    # Healthcheck
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6969/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  # Named volume for audio-separator model cache
+  audio-separator-cache:

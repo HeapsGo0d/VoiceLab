@@ -26,9 +26,11 @@ VoiceLab is a containerized voice AI playground featuring:
 - Environment strategy decided
 - Documentation written
 
-**Phase 2: Base Container Build** 🚧 IN PROGRESS
-- Dockerfile implementation next
-- See [Next Steps](docs/planning/04_next_steps.md)
+**Phase 2: Base Container Build** ✅ READY
+- Dockerfile created
+- Entrypoint and helper scripts ready
+- Ready to build and test
+- See [Quick Start](#quick-start) below
 
 ---
 
@@ -114,42 +116,122 @@ VoiceLab is a containerized voice AI playground featuring:
 
 ---
 
-## Getting Started
+## Quick Start
 
-### Phase 2: Build the Container (Next Steps)
+### Prerequisites
 
-1. **Review planning docs** (see [docs/planning/](docs/planning/))
-2. **Create Dockerfile** (see [04_next_steps.md](docs/planning/04_next_steps.md))
-3. **Build and test locally or on RunPod**
-4. **Run smoke tests** (see [02_integration_notes.md](docs/planning/02_integration_notes.md))
-5. **Deploy to RunPod with persistent storage**
+- **Docker** with NVIDIA Container Toolkit installed
+- **NVIDIA GPU** with recent drivers (450.80.02+)
+- **~20GB disk space** for Docker image + models
 
-**Estimated time:** 4-6 hours focused work → working v1 container
-
-**Detailed roadmap:** See [Next Steps](docs/planning/04_next_steps.md)
+**Install NVIDIA Container Toolkit:** https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
 ---
 
-## Features (Planned)
+### Option 1: Quick Start (Recommended)
 
-### v1 (Stability First)
-- ✅ Applio Web UI (port 6969)
-- ✅ audio-separator CLI
-- ✅ Persistent storage for models and datasets
-- ✅ Smoke tests for validation
-- ✅ RunPod-optimized deployment
+```bash
+# Clone the repository
+git clone https://github.com/HeapsGo0d/VoiceLab.git
+cd VoiceLab
 
-### v2 (Polish)
-- 🔄 Workflow automation scripts
-- 🔄 Common workflow documentation
-- 🔄 Troubleshooting guide
-- 🔄 Dockerfile optimization
+# Build the container (10-20 minutes first time)
+./scripts/build.sh
 
-### v3 (Advanced)
-- 📅 GPT-SoVITS v3 integration (optional TTS)
-- 📅 REST API for automation
-- 📅 Batch processing tools
-- 📅 Model gallery and sharing
+# Run the container
+./scripts/run.sh
+
+# Run smoke tests
+./scripts/smoke-test.sh
+
+# Open Web UI
+open http://localhost:6969
+```
+
+---
+
+### Option 2: Docker Compose
+
+```bash
+# Build and start
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+```
+
+---
+
+### Option 3: Manual Docker Commands
+
+```bash
+# Build
+docker build -t voicelab:v1 .
+
+# Run
+docker run -d \
+  --name voicelab-v1 \
+  --gpus all \
+  -p 6969:6969 \
+  -v $(pwd)/workspace:/workspace \
+  voicelab:v1
+
+# Logs
+docker logs -f voicelab-v1
+```
+
+---
+
+### Verify Installation
+
+Once the container is running, verify everything works:
+
+1. **Check Web UI**: Open http://localhost:6969
+2. **Run smoke tests**: `./scripts/smoke-test.sh`
+3. **Check logs**: `docker logs -f voicelab-v1`
+
+Expected startup time: 30-60 seconds for Web UI to be ready.
+
+---
+
+### Next Steps After Build
+
+1. **Upload test audio** via Web UI
+2. **Run vocal isolation** with audio-separator
+3. **Train a small test model** (see [integration notes](docs/planning/02_integration_notes.md))
+4. **Deploy to RunPod** (see [next steps](docs/planning/04_next_steps.md))
+
+**Full workflow guide:** See [docs/planning/02_integration_notes.md](docs/planning/02_integration_notes.md)
+
+---
+
+## Features
+
+### ✅ v1 Complete (Phase 2)
+- ✅ Dockerfile with PyTorch 2.5.1 + CUDA 12.4
+- ✅ Applio-RVC v3.5.1 (voice conversion)
+- ✅ audio-separator (vocal isolation)
+- ✅ Web UI on port 6969
+- ✅ Persistent workspace volume
+- ✅ Helper scripts (build, run, smoke-test)
+- ✅ Docker Compose support
+- ✅ Health checks
+
+### 🔄 v2 Planned (Phase 3-4)
+- 📋 RunPod deployment guide
+- 📋 Workflow automation scripts
+- 📋 Common workflow documentation
+- 📋 Troubleshooting guide
+- 📋 Dockerfile optimization
+
+### 📅 v3 Future (Phase 5)
+- GPT-SoVITS v3 integration (optional TTS)
+- REST API for automation
+- Batch processing tools
+- Model gallery and sharing
 
 ---
 
