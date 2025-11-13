@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     sox \
     libsndfile1 \
     libsndfile1-dev \
+    portaudio19-dev \
     # Utilities
     git \
     wget \
