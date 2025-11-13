@@ -121,11 +121,10 @@ RUN mkdir -p \
 # STAGE 7: Scripts, Entrypoint and Ports
 # ============================================================================
 
-# Copy scripts
-COPY entrypoint.sh /workspace/entrypoint.sh
-COPY scripts/startup.sh /workspace/scripts/startup.sh
-RUN chmod +x /workspace/entrypoint.sh && \
-    chmod +x /workspace/scripts/startup.sh
+# Copy scripts to /scripts (outside /workspace to avoid volume shadowing)
+COPY entrypoint.sh /scripts/entrypoint.sh
+COPY scripts/startup.sh /scripts/startup.sh
+RUN chmod +x /scripts/*.sh
 
 # Expose Applio Web UI port
 EXPOSE 6969
@@ -137,5 +136,5 @@ WORKDIR /workspace/tools/applio
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:6969/ || exit 1
 
-# Default entrypoint
-ENTRYPOINT ["/workspace/entrypoint.sh"]
+# Default entrypoint (outside /workspace to prevent volume shadowing)
+ENTRYPOINT ["/scripts/entrypoint.sh"]

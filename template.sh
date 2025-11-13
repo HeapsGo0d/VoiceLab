@@ -150,7 +150,7 @@ generate_template() {
   "name": "$TEMPLATE_NAME",
   "imageName": "$DOCKER_IMAGE:$VERSION_TAG",
   "dockerArgs": "",
-  "startScript": "bash /workspace/scripts/startup.sh",
+  "startScript": "/scripts/startup.sh",
   "env": [${env_vars}],
   "ports": [
     {
@@ -319,7 +319,7 @@ deploy_template() {
       "name": "$TEMPLATE_NAME",
       "imageName": "$DOCKER_IMAGE:$VERSION_TAG",
       "dockerArgs": "",
-      "startScript": "bash /workspace/scripts/startup.sh",
+      "startScript": "/scripts/startup.sh",
       "env": $env_json,
       "ports": "6969/http",
       "containerDiskInGb": $CONTAINER_DISK_GB,

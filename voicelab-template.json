@@ -1,0 +1,25 @@
+{
+  "name": "VoiceLab - Voice AI Experimentation",
+  "imageName": "heapsgo0d/voicelab:v0.0.1",
+  "dockerArgs": "",
+  "startScript": "bash /workspace/scripts/startup.sh",
+  "env": [],
+  "ports": [
+    {
+      "privatePort": 6969,
+      "publicPort": 6969,
+      "type": "http",
+      "description": "Applio Web UI"
+    }
+  ],
+  "volumeMounts": [
+    {
+      "containerPath": "/workspace",
+      "name": "workspace"
+    }
+  ],
+  "containerDiskInGb": 100,
+  "volumeInGb": 50,
+  "volumeMountPath": "/workspace",
+  "readme": "**Storage:** 100GB ephemeral + 50GB persistent\n\n## VoiceLab - Voice AI Experimentation\n\nDocker-based platform for voice conversion and vocal isolation with RTX 4090/5090 GPUs.\n\n### Features:\n- Applio-RVC v3.5.1 for voice conversion\n- audio-separator for vocal isolation\n- PyTorch 2.5.1 + CUDA 12.4\n- Web UI on port 6969\n\n### Access:\nOnce the pod starts, access Applio Web UI at:\nhttp://[pod-id]-6969.proxy.runpod.net\n\n### Workspace:\n- /workspace/data/raw - Upload audio files\n- /workspace/data/isolated - Vocal isolation outputs\n- /workspace/data/datasets - Training datasets\n- /workspace/models - Trained RVC models\n- /workspace/outputs - Experiment results\n\n### Documentation:\nhttps://github.com/HeapsGo0d/VoiceLab"
+}
