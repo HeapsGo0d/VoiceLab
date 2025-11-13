@@ -1,8 +1,8 @@
 {
   "name": "VoiceLab - Voice AI Experimentation",
-  "imageName": "heapsgo0d/voicelab:v0.0.1",
+  "imageName": "heapsgo0d/voicelab:v0.0.2",
   "dockerArgs": "",
-  "startScript": "bash /workspace/scripts/startup.sh",
+  "startScript": "/scripts/startup.sh",
   "env": [],
   "ports": [
     {

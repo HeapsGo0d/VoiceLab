@@ -42,8 +42,8 @@ else
     echo "🚀 Launching Applio..."
     echo ""
 
-    # Start Applio Web UI
-    cd /workspace/tools/applio
+    # Start Applio Web UI (now at /opt instead of /workspace)
+    cd /opt/applio
     exec python app.py \
         --server-name 0.0.0.0 \
         --server-port 6969 \

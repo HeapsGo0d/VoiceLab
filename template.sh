@@ -25,8 +25,8 @@ NC='\033[0m' # No Color
 DOCKER_IMAGE="heapsgo0d/voicelab"
 VERSION_TAG="v0.0.2"
 TEMPLATE_NAME="VoiceLab - Voice AI Experimentation"
-CONTAINER_DISK_GB=${CONTAINER_DISK_GB:-100}
-VOLUME_GB=${VOLUME_GB:-50}
+CONTAINER_DISK_GB=${CONTAINER_DISK_GB:-50}
+VOLUME_GB=${VOLUME_GB:-100}
 DEPLOY_MODE=false
 
 # ============================================================================

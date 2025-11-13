@@ -9,7 +9,7 @@ set -e
 # ============================================================================
 LOG_FILE="/tmp/voicelab_startup.log"
 WORKSPACE_DIR="/workspace"
-APPLIO_DIR="/workspace/tools/applio"
+APPLIO_DIR="/opt/applio"
 
 # ============================================================================
 # Logging Setup
