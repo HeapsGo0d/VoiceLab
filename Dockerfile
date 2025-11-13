@@ -118,12 +118,14 @@ RUN mkdir -p \
     /workspace/tools/applio/weights
 
 # ============================================================================
-# STAGE 7: Entrypoint and Ports
+# STAGE 7: Scripts, Entrypoint and Ports
 # ============================================================================
 
-# Copy entrypoint script
+# Copy scripts
 COPY entrypoint.sh /workspace/entrypoint.sh
-RUN chmod +x /workspace/entrypoint.sh
+COPY scripts/startup.sh /workspace/scripts/startup.sh
+RUN chmod +x /workspace/entrypoint.sh && \
+    chmod +x /workspace/scripts/startup.sh
 
 # Expose Applio Web UI port
 EXPOSE 6969
